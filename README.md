@@ -20,8 +20,9 @@ Native KlipperScreen panel for live tool offset trimming on KTC-Easy toolchanger
 ## Install
 
 ```
-git clone <your-repo-url> ~/ktc-xyz-trim
+git clone https://github.com/<your-user>/klipper-shit.git ~/ktc-xyz-trim
 cd ~/ktc-xyz-trim
+chmod +x install.sh uninstall.sh
 ./install.sh
 ```
 
