@@ -9,7 +9,7 @@ export PLUGIN_ROOT
 source "$PLUGIN_ROOT/scripts/lib.sh"
 
 # Git URL for Moonraker update_manager. Leave empty to skip that step.
-PLUGIN_REPO_URL=""
+PLUGIN_REPO_URL="https://github.com/buddasticks/klipper-shit.git"
 
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
