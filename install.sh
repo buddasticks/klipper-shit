@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # KTC-Easy XYZ Trim installer.
-# Usage: ./install.sh            (KS_DIR=/path/to/KlipperScreen ./install.sh to override detection)
+# Usage: bash install.sh   (KS_DIR=/path/to/KlipperScreen bash install.sh to override detection)
 set -euo pipefail
 
 PLUGIN_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -27,11 +27,46 @@ install_dependencies() {
   log "GTK 3 bindings: installed"
 }
 
+install_eddyseek() {
+  if [[ -f "$EDDYSEEK_DIR/install.sh" && -d "$EDDYSEEK_DIR/src" ]]; then
+    log "EddySeek: found at $EDDYSEEK_DIR"
+  else
+    [[ ! -e "$EDDYSEEK_DIR" ]] || die "$EDDYSEEK_DIR exists but is not an EddySeek checkout; move it aside and re-run"
+    command -v git >/dev/null || die "git is required to fetch EddySeek"
+    log "Cloning EddySeek into $EDDYSEEK_DIR"
+    git clone --depth 1 "$EDDYSEEK_REPO" "$EDDYSEEK_DIR" >>"$LOG_FILE" 2>&1 || die "EddySeek clone failed, see $LOG_FILE"
+  fi
+
+  if python_at_least 3 10; then
+    log "Host Python is 3.10+: no backport needed"
+  else
+    log "Host Python is older than 3.10: applying EddySeek Python 3.9 backport"
+    python3 "$PY39_PATCH" "$EDDYSEEK_DIR/src/eddy_seek" >>"$LOG_FILE" 2>&1 || die "Python 3.9 backport failed, see $LOG_FILE"
+  fi
+
+  log "Running EddySeek installer"
+  (cd "$EDDYSEEK_DIR" && bash install.sh) >>"$LOG_FILE" 2>&1 || die "EddySeek installer failed, see $LOG_FILE"
+  log "EddySeek: installed"
+}
+
 check_ktc_macros() {
   if grep -rqsF --include='*.cfg' 'KTC_OFFSET_ADJUST' "$CONFIG_DIR"; then
     log "KTC-Easy macros: found"
   else
     warn "KTC_OFFSET_ADJUST not found in $CONFIG_DIR; install KTC-Easy before using the panel"
+  fi
+}
+
+check_printer_config() {
+  local section all_found=1
+  for section in "[eddy_seek]" "[ktc_eddy_calibrate]" "[mcu eddy]"; do
+    if ! grep -rqsxF --include='*.cfg' "$section" "$CONFIG_DIR"; then
+      warn "$section not found in $CONFIG_DIR; add it before running xyz calibrate"
+      all_found=0
+    fi
+  done
+  if [[ "$all_found" -eq 1 ]]; then
+    log "EddySeek config sections: found"
   fi
 }
 
@@ -99,6 +134,7 @@ installed=$(date -Iseconds)
 ks_dir=$ks_dir
 panel=$ks_dir/panels/xyz_trim.py
 plugin_root=$PLUGIN_ROOT
+eddyseek_dir=$EDDYSEEK_DIR
 EOF
   log "Manifest written: $MANIFEST"
 }
@@ -120,7 +156,9 @@ main() {
   log "KlipperScreen: $ks_dir"
 
   install_dependencies
+  install_eddyseek
   check_ktc_macros
+  check_printer_config
   install_panel "$ks_dir"
   register_menu
   register_update_manager
