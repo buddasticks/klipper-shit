@@ -19,25 +19,21 @@ Native KlipperScreen panel for live tool offset trimming on KTC-Easy toolchanger
 
 ## Install
 
-```
-git clone https://github.com/<your-user>/klipper-shit.git ~/ktc-xyz-trim
+git clone https://github.com/buddasticks/klipper-shit.git ~/ktc-xyz-trim
 cd ~/ktc-xyz-trim
-chmod +x install.sh uninstall.sh
-./install.sh
-```
+bash install.sh
+
 
 If KlipperScreen is not in a standard location:
 
-```
-KS_DIR=/path/to/KlipperScreen ./install.sh
-```
+KS_DIR=/path/to/KlipperScreen bash install.sh
+
 
 ## Uninstall
 
-```
 cd ~/ktc-xyz-trim
-./uninstall.sh
-```
+bash uninstall.sh
+
 
 ## What it changes
 
@@ -53,10 +49,10 @@ Klipper macros and printer configuration are not modified.
 
 Every file changed is backed up to `~/printer_data/config/.ktc-xyz-trim-backups/` before modification. The 10 most recent backups are kept.
 
-Install log: `~/printer_data/logs/ktc-xyz-trim.log`
-Install manifest: `~/printer_data/config/.ktc-xyz-trim.manifest`
+- Install log: `~/printer_data/logs/ktc-xyz-trim.log`
+- Install manifest: `~/printer_data/config/.ktc-xyz-trim.manifest`
 
 ## Notes
 
 - Adjustments apply immediately. Stage offsets before saving, since `SAVE_CONFIG` restarts Klipper.
-- After install, restart KlipperScreen if it did not restart automatically.
+- Restart KlipperScreen if it did not restart automatically after install.
