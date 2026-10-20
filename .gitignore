@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+*.bak
+eddy_seek_results/
+printer-*.cfg
+saved_variables.cfg
