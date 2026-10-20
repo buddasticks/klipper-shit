@@ -8,6 +8,11 @@ PLUGIN_VERSION="$(cat "$PLUGIN_ROOT/VERSION" 2>/dev/null || echo unknown)"
 # Packages required by the panel (GTK 3 bindings). Append extra packages here.
 APT_DEPS=(python3-gi gir1.2-gtk-3.0)
 
+# EddySeek: required by xyz calibrate.
+EDDYSEEK_REPO="https://github.com/charliemayall/EddySeek.git"
+EDDYSEEK_DIR="$HOME/EddySeek"
+PY39_PATCH="$PLUGIN_ROOT/scripts/patch_py39.py"
+
 CONFIG_DIR="$HOME/printer_data/config"
 LOG_DIR="$HOME/printer_data/logs"
 KS_CONF="$CONFIG_DIR/KlipperScreen.conf"
@@ -38,6 +43,11 @@ find_klipperscreen() {
 # True when GTK 3 Python bindings import cleanly.
 has_gtk() {
   python3 -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' >/dev/null 2>&1
+}
+
+# True when host python3 is at least MAJOR.MINOR. Usage: python_at_least 3 10
+python_at_least() {
+  python3 -c "import sys; sys.exit(0 if sys.version_info >= ($1, $2) else 1)"
 }
 
 # True when an exact header line exists in an ini-style file.
